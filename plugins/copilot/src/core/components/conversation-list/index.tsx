@@ -5,6 +5,7 @@ import { conversationListStyle } from './index.css';
 
 export type ConversationListProps = {
   conversations: BaseMessage[];
+  onInsertAllClick: (content: string) => void;
 };
 
 export const ConversationList = (props: ConversationListProps) => {

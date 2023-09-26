@@ -20,10 +20,20 @@ marked.use(mangle());
 export interface ConversationProps {
   type: MessageType;
   text: string;
+  onInsertAllClick?: (content: string) => void;
 }
 
 export const Conversation = (props: ConversationProps): ReactElement => {
   const html = useMemo(() => marked.parse(props.text), [props.text]);
+
+  const handleInsertAllClick = () => {
+    const pageElement = document.querySelector("[data-document-content]");
+    if (pageElement && 'innerText' in pageElement) {
+        const pageContent = (pageElement as HTMLElement).innerText;
+        props.onInsertAllClick && props.onInsertAllClick(pageContent);
+    }
+  };
+
   return (
     <div
       className={clsx(styles.containerStyle, {
@@ -56,7 +66,11 @@ export const Conversation = (props: ConversationProps): ReactElement => {
             <Button icon={<PlusIcon />} className={styles.insertButtonStyle}>
               Insert list block only
             </Button>
-            <Button icon={<PlusIcon />} className={styles.insertButtonStyle}>
+            <Button 
+              icon={<PlusIcon />} 
+              className={styles.insertButtonStyle}
+              onClick={handleInsertAllClick}
+            >
               Insert all
             </Button>
           </div>

@@ -3,7 +3,7 @@ import { IconButton } from '@toeverything/components/button';
 import { useAtomValue, useSetAtom } from 'jotai';
 import type { ReactElement } from 'react';
 import { Suspense, useCallback, useState } from 'react';
-
+import type { SetStateAction, Dispatch } from 'react';
 import { ConversationList } from '../core/components/conversation-list';
 import { FollowingUp } from '../core/components/following-up';
 import { openAIApiKeyAtom, useChatAtoms } from '../core/hooks';
@@ -14,12 +14,18 @@ import {
   textareaStyle,
 } from './index.css';
 
-const Actions = () => {
+type BaseMessage = any; // Placeholder type, replace with actual type if available
+
+interface ActionsProps {
+  input: string;
+  setInput: Dispatch<SetStateAction<string>>;
+}
+
+const Actions: React.FC<ActionsProps> = ({ input, setInput }) => {
   const { conversationAtom, followingUpAtoms } = useChatAtoms();
   const call = useSetAtom(conversationAtom);
   const questions = useAtomValue(followingUpAtoms.questionsAtom);
   const generateFollowingUp = useSetAtom(followingUpAtoms.generateChatAtom);
-  const [input, setInput] = useState('');
   return (
     <>
       <FollowingUp questions={questions} />
@@ -27,7 +33,7 @@ const Actions = () => {
         <textarea
           className={textareaStyle}
           value={input}
-          placeholder="Type here ask Copilot some thing..."
+          placeholder="Prompt please"
           onChange={e => {
             setInput(e.target.value);
           }}
@@ -52,12 +58,17 @@ const Actions = () => {
 const DetailContentImpl = () => {
   const { conversationAtom } = useChatAtoms();
   const conversations = useAtomValue(conversationAtom);
+  const [input, setInput] = useState('');
+
+  const handleInsertAllClick = (content: string) => {
+    setInput(content);
+  };
 
   return (
     <div className={detailContentStyle}>
-      <ConversationList conversations={conversations} />
+      <ConversationList conversations={conversations} onInsertAllClick={handleInsertAllClick} />  // Modify this line
       <Suspense fallback="generating follow-up question">
-        <Actions />
+        <Actions input={input} setInput={setInput} />
       </Suspense>
     </div>
   );
